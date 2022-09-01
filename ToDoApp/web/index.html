@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ToDoApp</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<style>
+
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  height: 50px;
+  width: 200px;
+}
+
+tr:hover {background-color: coral;
+}
+
+
+table {
+  border-collapse: collapse;
+}
+.open-button {
+  background-color: #555;
+  color: white;
+  padding: 16px 20px;
+  border : 2px solid black;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  right: 200px;
+  width: 200px;
+  border-radius: 5px;
+  margin-bottom:10px;
+}
+
+/* The popup form - hidden by default */
+.form-popup {
+  display: none;
+  position: fixed;
+  top: 3px;
+  left: 15px;
+  border: 3px solid #f1f1f1;
+  z-index: 0;
+}
+
+/* Add styles to the form container */
+.form-container {
+  max-width: 600px;
+  padding: 10px;
+  background-color: white;
+}
+
+/* Full-width input fields */
+.form-container input[type=text], .form-container input[type=password] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+}
+
+/* When the inputs get focus, do something */
+.form-container input[type=text]:focus, .form-container input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Set a style rgb(128, 128, 128) the submit/login button */
+.form-container .btn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom:10px;
+  opacity: 0.8;
+  border-radius: 5px;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background-color: #555;
+}
+
+/* Add some hover effects to buttons */
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}
+
+textarea {
+  width: 100%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: 16px;
+  resize: none;
+}
+
+.btn {
+  border: none;
+  background-color: inherit;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.btn:hover {background: #eee;}
+
+.warning {color: orange;}
+.danger {color: red;}
+</style>
+</head>
+<body id="body"  onload="loadList()">
+<div id="hide-body">
+	<table id="todo_table" >
+	<tr>
+		<th>Status</th>
+		<th>Task No.</th>
+		<th>Title</th>
+		<th>Description</th>
+	</tr>
+	<tbody id="bodytable">
+	</tbody>
+</table>
+<button class="open-button" onclick="openForm()">Add New Task</button>
+</div>
+<div class="form-popup" id="formContainer">
+  <form class="form-container" id="myForm">
+    <h1>New To-Do</h1>
+
+    <label for="title"><b>Title</b></label>
+    <input type="text" id="title" name="title"><br><br>
+
+    <label for="description"><b>Description</b></label>
+    <textarea name="description" rows="10" cols="30"></textarea><br><br>
+	<!-- 
+	<input type="checkbox" id="completed" name="completed" value="completed">
+	 <label for="completed"><b>Completed</b></label><br> -->
+    <button class="btn" onclick="saveNewTodo()">Submit</button>
+    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+  </form>
+</div>
+
+<div class="form-popup" id="formContainer1">
+  <form class="form-container" id="myForm1">
+    <h1>Edit To-Do</h1>
+	<label for="title"><b>To-Do No:</b></label>
+    <input type="text" id="id1" name="id"><br><br>
+    <label for="title"><b>Title</b></label>
+    <input type="text" id="title1" name="title"><br><br>
+
+    <label for="description"><b>Description</b></label>
+    <textarea name="description" id="description1" rows="10" cols="30"></textarea><br><br>
+	<input type="checkbox" id="completed1" name="completed">
+	 <label for="completed"><b>Completed</b></label><br>
+    <button class="btn" onclick="updateTodo()">Submit</button>
+    <button type="button" class="btn cancel" onclick="closeForm1()">Close</button>
+  </form>
+</div>
+ 
+<script>
+function openForm() {
+	  document.getElementById("formContainer").style.display = "block";
+	  document.getElementById("hide-body").style.display = "none";
+	  //$("#title").value();
+	}
+
+	function closeForm() {
+	  document.getElementById("formContainer").style.display = "none";
+	  document.getElementById("hide-body").style.display = "block";
+	}
+	function closeForm1() {
+		  document.getElementById("formContainer1").style.display = "none";
+		  document.getElementById("hide-body").style.display = "block";
+		}
+
+function saveNewTodo(){
+	const xhttp = new XMLHttpRequest();
+	xhttp.onload = function() {
+		$('#todo_table').find('#bodytable').empty();
+		loadList();
+	}
+	const FD = new FormData(document.querySelector("#myForm"));
+	xhttp.open("PUT", "task/insert", true);
+	FD.set("completed",0);
+	xhttp.send(FD);
+	$('#todo_table').empty();
+	window.location.load();
+}
+
+function loadList(){
+	  const xhttp = new XMLHttpRequest();
+	  xhttp.onload = function() {
+			let list = [];
+			list = JSON.parse(this.responseText);
+			console.log(list);
+			let trHTML = "";
+			$.each(list, function (i, item) {
+				console.log(item);
+	            trHTML = '<tr><td><input type=checkbox id="c'+item.id+'" checked></td><td>' + item.id + '</td><td>' + item.title + '</td><td>' + item.description + '</td><td>' + '<button class="btn danger" onclick="onEdit('+item.id+');" id="e'+item.id+'">EDIT</button></td><td><button class="btn warning" onclick="deleteTodo('+item.id+');" id="d'+item.id+'">DELETE</button></td></tr>' ;
+	            $('#todo_table').find('#bodytable').append(trHTML);
+	            if(item.completed==0){
+	            	document.getElementById('c'+item.id).checked = false;
+	            }
+	    	        });
+			console.log(trHTML);
+	        
+			
+	    }
+	  xhttp.open("GET", "task/get", true);
+	  xhttp.send();
+}
+
+function onEdit(id){
+	console.log(id);
+	const xhttp = new XMLHttpRequest();
+	let list = [];
+	xhttp.onload = function() {
+		list = JSON.parse(this.responseText);
+		console.log(list);
+		document.getElementById("id1").value = list.id;
+		document.getElementById("title1").value = list.title;
+		document.getElementById("description1").value = list.description;
+		
+    }
+	
+	xhttp.open("POST", "task/getEditForm", true);
+	const FD = new FormData();
+	FD.append("id",id);
+	xhttp.send(FD);
+	document.getElementById("formContainer1").style.display = "block";
+	document.getElementById("hide-body").style.display = "none";
+	
+	
+}
+
+function updateTodo(){
+	const xhttp = new XMLHttpRequest();
+	xhttp.onload = function() {
+		$('#todo_table').find('#bodytable').empty();
+		loadList();
+	}
+	//const FD = new FormData(document.querySelector("#myForm"));
+	xhttp.open("POST", "task/update", true);
+	//FD.set("completed",0);
+	const FD = new FormData(document.querySelector("#myForm1"));
+	if(FD.get('completed')=="on")
+		FD.set("completed",1);
+	else{
+		FD.set("completed",0);
+	}
+	xhttp.send(FD);
+}
+
+function deleteTodo(id){
+	const xhttp = new XMLHttpRequest();
+	xhttp.onload = function() {
+		$('#todo_table').find('#bodytable').empty();
+		loadList();
+	}
+	xhttp.open("DELETE", "task/delete", true);
+	const FD = new FormData();
+	FD.append("id",id);
+	xhttp.send(FD);
+}
+
+</script>
+</body>
+</html>
