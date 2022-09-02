@@ -5,14 +5,16 @@ public class Todo {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Todo(String title, String description, int completed) {
+	public Todo(String title, String description, int completed, int userid) {
 		super();
+		this.setUserid(userid);
 		this.title = title;
 		this.description = description;
 		this.completed = completed;
 	}
-	public Todo(int id, String title, String description, int completed) {
+	public Todo(int id, String title, String description, int completed, int userid) {
 		super();
+		this.setUserid(userid);
 		this.id = id;
 		this.title = title;
 		this.description = description;
@@ -22,6 +24,7 @@ public class Todo {
 	private String title;
 	private String description;
 	private int completed;
+	private int userid;
 	public int getId() {
 		return id;
 	}
@@ -45,5 +48,11 @@ public class Todo {
 	}
 	public void setCompleted(int completed) {
 		this.completed = completed;
+	}
+	public int getUserid() {
+		return userid;
+	}
+	public void setUserid(int userid) {
+		this.userid = userid;
 	}
 }

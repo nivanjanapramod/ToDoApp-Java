@@ -132,6 +132,9 @@ textarea {
 	</tbody>
 </table>
 <button class="open-button" onclick="openForm()">Add New Task</button>
+	<form id="logoutForm">
+  		<div class="btn" onclick="doLogout()">LOGOUT</div>
+  	</form>
 </div>
 <div class="form-popup" id="formContainer">
   <form class="form-container" id="myForm">
@@ -184,25 +187,33 @@ function openForm() {
 		}
 
 function saveNewTodo(){
-	const xhttp = new XMLHttpRequest();
-	xhttp.onload = function() {
-		$('#todo_table').find('#bodytable').empty();
-		loadList();
+	if(checkCookie()){
+		const xhttp = new XMLHttpRequest();
+		xhttp.onload = function() {
+			$('#todo_table').find('#bodytable').empty();
+			loadList();
+		}
+		const FD = new FormData(document.querySelector("#myForm"));
+		xhttp.open("PUT", "task/insert", true);
+		FD.set("userid", getCookie("userid"));
+		FD.set("completed",0);
+		xhttp.send(FD);
+		$('#todo_table').empty();
+		window.location.load();
 	}
-	const FD = new FormData(document.querySelector("#myForm"));
-	xhttp.open("PUT", "task/insert", true);
-	FD.set("completed",0);
-	xhttp.send(FD);
-	$('#todo_table').empty();
-	window.location.load();
+	else{
+		alert("You don't have access to this page!!");
+	}
 }
 
 function loadList(){
+	if(checkCookie()){
 	  const xhttp = new XMLHttpRequest();
 	  xhttp.onload = function() {
 			let list = [];
 			list = JSON.parse(this.responseText);
 			console.log(list);
+			let userid = getCookie("userid");
 			let trHTML = "";
 			$.each(list, function (i, item) {
 				console.log(item);
@@ -218,61 +229,119 @@ function loadList(){
 	    }
 	  xhttp.open("GET", "task/get", true);
 	  xhttp.send();
+	}
+	else{
+		alert("You don't have access to this page!!");
+	}
 }
 
 function onEdit(id){
-	console.log(id);
-	const xhttp = new XMLHttpRequest();
-	let list = [];
-	xhttp.onload = function() {
-		list = JSON.parse(this.responseText);
-		console.log(list);
-		document.getElementById("id1").value = list.id;
-		document.getElementById("title1").value = list.title;
-		document.getElementById("description1").value = list.description;
+	if(checkCookie()){
+		console.log(id);
+		const xhttp = new XMLHttpRequest();
+		let list = [];
+		xhttp.onload = function() {
+			list = JSON.parse(this.responseText);
+			console.log(list);
+			document.getElementById("id1").value = list.id;
+			document.getElementById("title1").value = list.title;
+			document.getElementById("description1").value = list.description;
+			
+	    }
 		
-    }
-	
-	xhttp.open("POST", "task/getEditForm", true);
-	const FD = new FormData();
-	FD.append("id",id);
-	xhttp.send(FD);
-	document.getElementById("formContainer1").style.display = "block";
-	document.getElementById("hide-body").style.display = "none";
-	
-	
+		xhttp.open("POST", "task/getEditForm", true);
+		const FD = new FormData();
+		FD.append("id",id);
+		xhttp.send(FD);
+		document.getElementById("formContainer1").style.display = "block";
+		document.getElementById("hide-body").style.display = "none";
+	}
+	else{
+		alert("You don't have access to this page!!");
+	}	
 }
 
 function updateTodo(){
-	const xhttp = new XMLHttpRequest();
-	xhttp.onload = function() {
-		$('#todo_table').find('#bodytable').empty();
-		loadList();
+	if(checkCookie()){
+		const xhttp = new XMLHttpRequest();
+		xhttp.onload = function() {
+			$('#todo_table').find('#bodytable').empty();
+			loadList();
+		}
+		xhttp.open("POST", "task/update", true);
+		const FD = new FormData(document.querySelector("#myForm1"));
+		if(FD.get('completed')=="on")
+			FD.set("completed",1);
+		else{
+			FD.set("completed",0);
+		}
+		xhttp.send(FD);
 	}
-	//const FD = new FormData(document.querySelector("#myForm"));
-	xhttp.open("POST", "task/update", true);
-	//FD.set("completed",0);
-	const FD = new FormData(document.querySelector("#myForm1"));
-	if(FD.get('completed')=="on")
-		FD.set("completed",1);
 	else{
-		FD.set("completed",0);
-	}
-	xhttp.send(FD);
+		alert("You don't have access to this page!!");
+	}	
 }
 
 function deleteTodo(id){
-	const xhttp = new XMLHttpRequest();
-	xhttp.onload = function() {
-		$('#todo_table').find('#bodytable').empty();
-		loadList();
+	if(checkCookie()){
+		const xhttp = new XMLHttpRequest();
+		xhttp.onload = function() {
+			$('#todo_table').find('#bodytable').empty();
+			loadList();
+		}
+		xhttp.open("DELETE", "task/delete", true);
+		const FD = new FormData();
+		FD.append("id",id);
+		xhttp.send(FD);
 	}
-	xhttp.open("DELETE", "task/delete", true);
-	const FD = new FormData();
-	FD.append("id",id);
-	xhttp.send(FD);
+	else{
+		alert("You don't have access to this page!!");
+	}	
 }
 
+
+function getCookie(cname) {
+	  let name = cname + "=";
+	  let ca = document.cookie.split(';');
+	  for(let i = 0; i < ca.length; i++) {
+	    let c = ca[i];
+	    while (c.charAt(0) == ' ') {
+	      c = c.substring(1);
+	    }
+	    if (c.indexOf(name) == 0) {
+	      return c.substring(name.length, c.length);
+	    }
+	  }
+	  
+	  return "";
+	}
+	
+function checkCookie() {
+	  let user = getCookie("userid");
+	  if (user != "") {
+	    	return true;
+	  } 
+	  else {
+	    	return false;
+	  }
+	}
+	
+	
+function doLogout(){
+	const xhttp = new XMLHttpRequest();
+	xhttp.onload = function() {
+		window.location.href='logout.html';
+		var date = new Date();
+        date.setTime(date.getTime()+(0*24*60*60*1000));
+        var expires = "; expires="+date.toGMTString();
+		cookie = document.cookie;
+		document.cookie=cookie+expires+";max-age=-1";
+		cooki1=document.cookie;
+		sessionStorage.clear();
+	}
+	xhttp.open("GET", "logout", true);
+	xhttp.send();
+}
 </script>
 </body>
 </html>

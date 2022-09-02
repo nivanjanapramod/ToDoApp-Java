@@ -21,6 +21,12 @@
 		<action name="getEditForm" class="com.ToDoServlet" method = "execute">
 		</action>
 	</package>
+	<package name="user" namespace="/">
+		<action name="login" class="session.users.app.loginServlet" method="execute">
+		</action>
+		<action name="logout" class="session.users.app.loginServlet" method="execute">
+		</action>
+	</package>
 	<constant name="struts.action.excludePattern" value="/todo"></constant>
 	
 </struts>

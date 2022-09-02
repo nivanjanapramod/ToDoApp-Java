@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.struts2.ServletActionContext;
@@ -86,8 +87,13 @@ public class ToDoServlet extends ActionSupport{
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, JSONException {
 		try(
+		
 			Connection connection = getConnection()){
-			PreparedStatement preparedStatement = connection.prepareStatement("select * from todo;");
+			Cookie[] cookies = request.getCookies();
+	        int value = Integer.valueOf(cookies[1].getValue());
+	        System.out.println(value);
+			PreparedStatement preparedStatement = connection.prepareStatement("select * from todo where userid=?;");
+			preparedStatement.setInt(1, value);
 			System.out.println(preparedStatement);
 			ResultSet rs = preparedStatement.executeQuery();
 			JSONArray ja = new JSONArray();
@@ -143,7 +149,8 @@ public class ToDoServlet extends ActionSupport{
 			String title = (String) request.getParameter("title");
 			int id = Integer.valueOf(request.getParameter("id"));
 			int completed =Integer.valueOf(request.getParameter("completed"));
-			Todo todo = new Todo(id, title, description, completed);
+			int userid = Integer.valueOf(request.getParameter("userid"));
+			Todo todo = new Todo(id, title, description, completed, userid);
 			preparedStatement.setInt(4, id);
 			preparedStatement.setString(1, todo.getTitle());
 			preparedStatement.setString(2, todo.getDescription());
@@ -166,13 +173,15 @@ public class ToDoServlet extends ActionSupport{
 			String description = (String) request.getParameter("description");
 			String title = (String) request.getParameter("title");
 			int completed =Integer.valueOf(request.getParameter("completed"));
-			Todo todo = new Todo(title, description, completed);
-			PreparedStatement preparedStatement = connection.prepareStatement("insert into todo (title,description,completed) values(?,?,?);");
+			int userid = Integer.valueOf(request.getParameter("userid"));
+			Todo todo = new Todo(title, description, completed, userid);
+			PreparedStatement preparedStatement = connection.prepareStatement("insert into todo (title,description,completed,userid) values(?,?,?,?);");
 			System.out.println(preparedStatement);
 			//ResultSet rs = preparedStatement.executeQuery();
 			preparedStatement.setString(1, todo.getTitle());
 			preparedStatement.setString(2, todo.getDescription());
 			preparedStatement.setInt(3, todo.isCompleted());
+			preparedStatement.setInt(4, todo.getUserid());
 			preparedStatement.executeUpdate();
 			connection.commit();
 			preparedStatement.close();
