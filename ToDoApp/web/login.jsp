@@ -40,7 +40,7 @@
 			document.cookie = "userid" + "=" + list.userid + ";" + expires;
 			let x = document.cookie;
 			console.log(x);
-			window.location.href='index.html';
+			window.location.replace('index.html');
     	}
     	xhttp.open("POST", "login", true);
     	const FD = new FormData(document.querySelector("#loginForm"));

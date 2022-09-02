@@ -28,11 +28,15 @@ public class AuthenticationFilter implements Filter{
 
         HttpSession session = req.getSession(false);
 
-        if (session == null) {   //checking whether the session exists
-            this.context.log("Unauthorized access request");
+        if (session == null || session.getAttribute("userid") == null) {   //checking whether the session exists
+            //this.context.log("Unauthorized access request");
             res.sendRedirect(req.getContextPath() + "/login.jsp");
         } else {
             // pass the request along the filter chain
+        	res.setHeader("Cache-Control",
+                    "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+        	res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+        	res.setDateHeader("Expires", 0);
             chain.doFilter(request, response);
         }
     }

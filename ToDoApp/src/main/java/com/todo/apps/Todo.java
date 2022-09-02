@@ -1,6 +1,13 @@
 package com.todo.apps;
 
 public class Todo {
+	public Todo(int id, String title, String description, int completed) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.description = description;
+		this.completed = completed;
+	}
 	public Todo() {
 		super();
 		// TODO Auto-generated constructor stub

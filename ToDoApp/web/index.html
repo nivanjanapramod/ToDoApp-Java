@@ -224,14 +224,13 @@ function loadList(){
 	            }
 	    	        });
 			console.log(trHTML);
-	        
-			
 	    }
 	  xhttp.open("GET", "task/get", true);
 	  xhttp.send();
 	}
 	else{
 		alert("You don't have access to this page!!");
+		window.location.href='login.jsp';
 	}
 }
 
@@ -258,6 +257,7 @@ function onEdit(id){
 	}
 	else{
 		alert("You don't have access to this page!!");
+		window.location.href='login.jsp';
 	}	
 }
 
@@ -279,6 +279,7 @@ function updateTodo(){
 	}
 	else{
 		alert("You don't have access to this page!!");
+		window.location.href='login.jsp';
 	}	
 }
 
@@ -296,6 +297,7 @@ function deleteTodo(id){
 	}
 	else{
 		alert("You don't have access to this page!!");
+		window.location.href='login.jsp';
 	}	
 }
 

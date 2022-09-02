@@ -149,8 +149,7 @@ public class ToDoServlet extends ActionSupport{
 			String title = (String) request.getParameter("title");
 			int id = Integer.valueOf(request.getParameter("id"));
 			int completed =Integer.valueOf(request.getParameter("completed"));
-			int userid = Integer.valueOf(request.getParameter("userid"));
-			Todo todo = new Todo(id, title, description, completed, userid);
+			Todo todo = new Todo(id, title, description, completed);
 			preparedStatement.setInt(4, id);
 			preparedStatement.setString(1, todo.getTitle());
 			preparedStatement.setString(2, todo.getDescription());
