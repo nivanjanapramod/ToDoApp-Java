@@ -39,6 +39,8 @@ public class loginServlet extends ActionSupport {
 		response = ServletActionContext.getResponse();
 		String action = request.getServletPath();
 		switch(action) {
+		    
+			case "ToDoApp/login":
 			case "/login": doPost(request,response);
 							break;
 			case "/logout": doGet(request,response);
@@ -77,49 +79,61 @@ public class loginServlet extends ActionSupport {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, JSONException {
-		PrintWriter out = response.getWriter();
-		HttpSession session = request.getSession();
-		String user = (String) request.getParameter("username");
-        String password = (String) request.getParameter("password");
-        try(Connection connection = getConnection()){
-			PreparedStatement preparedStatement = connection.prepareStatement("select * from user where username=?;");
-			preparedStatement.setString(1, user);
-			ResultSet rs = preparedStatement.executeQuery();
-			String u = "tryname";
-			String p = "password";
-			while (rs.next()) {
-			u = rs.getString("username");
-			p = rs.getString("password");
-			userid = rs.getInt("id");
-			}
-			if (password.equals(p) && user.equals(u)) {
-		        session.setAttribute("user", user);
-		        session.setMaxInactiveInterval(300);
-		        System.out.println(request.getSession(false));
-		        PreparedStatement pr = connection.prepareStatement("insert into session(userid, session) values(?,?);");
-		        pr.setInt(1, userid);
-		        String s = "";
-		        s += request.getSession(false);
-		        pr.setString(2, s);
-		        pr.executeUpdate();
-		        response.setContentType("application/json");
-				JSONObject j = new JSONObject();
-				j.put("userid", userid);
-				out.print(j);
-				out.flush();
-		    }
-			/*
-		    else {
-		    	response.setContentType("text/html");
-		        RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
-		        out.println("Password is wrong.");
-		        rd.include(request, response);
-		    }*/
-		    out.close();
+		Cookie[] cookies = request.getCookies();
+        
+        if(cookies != null & cookies.length >= 2) {
+        	if(cookies[1].getValue() != null)
+        		response.sendRedirect("index.html");
         }
-        catch(SQLException e) {
-			printSQLException(e);
-		}
+        else {
+			PrintWriter out = response.getWriter();
+			HttpSession session = request.getSession();
+			String user = (String) request.getParameter("username");
+	        String password = (String) request.getParameter("password");
+	        if(user==null || password==null)
+	        	response.sendRedirect("index.html");
+	        else {
+	        try(Connection connection = getConnection()){
+				PreparedStatement preparedStatement = connection.prepareStatement("select * from user where username=?;");
+				preparedStatement.setString(1, user);
+				ResultSet rs = preparedStatement.executeQuery();
+				String u = "tryname";
+				String p = "password";
+				while (rs.next()) {
+				u = rs.getString("username");
+				p = rs.getString("password");
+				userid = rs.getInt("id");
+				}
+				if (password.equals(p) && user.equals(u)) {
+			        session.setAttribute("user", user);
+			        session.setMaxInactiveInterval(300);
+			        System.out.println(request.getSession(false));
+			        PreparedStatement pr = connection.prepareStatement("insert into session(userid, session) values(?,?);");
+			        pr.setInt(1, userid);
+			        String s = "";
+			        s += request.getSession(false);
+			        pr.setString(2, s);
+			        pr.executeUpdate();
+			        response.setContentType("application/json");
+					JSONObject j = new JSONObject();
+					j.put("userid", userid);
+					out.print(j);
+					out.flush();
+			    }
+				/*
+			    else {
+			    	response.setContentType("text/html");
+			        RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
+			        out.println("Password is wrong.");
+			        rd.include(request, response);
+			    }*/
+			    out.close();
+	        }
+	        catch(SQLException e) {
+				printSQLException(e);
+			}
+        }
+        }
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {

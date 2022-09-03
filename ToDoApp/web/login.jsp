@@ -24,8 +24,8 @@
     <form id="loginForm">
   
         <h3>Enter Your details</h3>
-  		USERNAME : <input type="text" name="username" /><br><br>
-  		PASSWORD : <input type="password" name="password" /><br><br>
+  		USERNAME : <input type="text" name="username" id="u"/><br><br>
+  		PASSWORD : <input type="password" name="password" id="p" /><br><br>
   		<div class="btn" onclick="doLogin()">Submit</div></form>
     <script>
     function doLogin(){
@@ -42,9 +42,11 @@
 			console.log(x);
 			window.location.replace('index.html');
     	}
-    	xhttp.open("POST", "login", true);
-    	const FD = new FormData(document.querySelector("#loginForm"));
-    	xhttp.send(FD);
+    	var user = document.querySelector("#u").value;
+    	var pass =document.querySelector("#p").value;
+    	xhttp.open("POST", "login?username="+user+"&password="+pass, true);
+    //	const FD = new FormData(document.querySelector("#loginForm"));
+    	xhttp.send();
     }
     </script>
 </body>

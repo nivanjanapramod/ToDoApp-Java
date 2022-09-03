@@ -33,10 +33,6 @@ public class AuthenticationFilter implements Filter{
             res.sendRedirect(req.getContextPath() + "/login.jsp");
         } else {
             // pass the request along the filter chain
-        	res.setHeader("Cache-Control",
-                    "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-        	res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-        	res.setDateHeader("Expires", 0);
             chain.doFilter(request, response);
         }
     }
